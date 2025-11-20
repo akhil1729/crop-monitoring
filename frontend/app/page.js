@@ -41,16 +41,25 @@ export default function Home() {
     <main
       style={{
         minHeight: "100vh",
-        padding: "2rem 1.5rem 3rem",
+        padding: "1.5rem 3vw 3rem", // a bit less padding + responsive side padding
         fontFamily: "system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
         background:
           "radial-gradient(circle at top, #0f172a 0, #020617 40%, #000 100%)",
         color: "#e5e7eb",
         display: "flex",
         justifyContent: "center",
+        alignItems: "stretch",
       }}
     >
-      <div style={{ width: "100%", maxWidth: "1100px" }}>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "1440px", // 🔹 much wider canvas
+          display: "flex",
+          flexDirection: "column",
+          gap: "1.5rem",
+        }}
+      >
         {/* HERO: Text + 3D Globe */}
         <section
           style={{
@@ -162,8 +171,9 @@ export default function Home() {
         <section
           style={{
             display: "grid",
-            gridTemplateColumns: "minmax(0,1.1fr) minmax(0,1fr)",
+            gridTemplateColumns: "minmax(0,1.2fr) minmax(0,1.05fr)", // a bit wider right column
             gap: "1.5rem",
+            alignItems: "stretch",
           }}
         >
           {/* Left: Controls + Results */}
@@ -298,132 +308,140 @@ export default function Home() {
                   Overall risk is normalized from 0 (low) to 1 (high).
                 </p>
 
-                {results.tiles &&
-                  results.tiles.map((item, idx) => {
-                    // Use overall risk_score to derive a label and border color
-                    let level = "Low";
-                    if (item.risk_score > 0.85) level = "Extreme";
-                    else if (item.risk_score > 0.7) level = "High";
-                    else if (item.risk_score > 0.5) level = "Medium";
+                {/* GRID OF TILES */}
+                {results.tiles && (
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns:
+                        "repeat(auto-fit, minmax(260px, 1fr))",
+                      gap: "0.9rem",
+                      alignItems: "stretch",
+                    }}
+                  >
+                    {results.tiles.map((item, idx) => {
+                      // Use overall risk_score to derive a label and border color
+                      let level = "Low";
+                      if (item.risk_score > 0.85) level = "Extreme";
+                      else if (item.risk_score > 0.7) level = "High";
+                      else if (item.risk_score > 0.5) level = "Medium";
 
-                    const borderColor =
-                      level === "Extreme"
-                        ? "#dc2626"
-                        : level === "High"
-                        ? "#ef4444"
-                        : level === "Medium"
-                        ? "#facc15"
-                        : "#22c55e";
+                      const borderColor =
+                        level === "Extreme"
+                          ? "#dc2626"
+                          : level === "High"
+                          ? "#ef4444"
+                          : level === "Medium"
+                          ? "#facc15"
+                          : "#22c55e";
 
-                    return (
-                      <div
-                        key={item.tile_id ?? idx}
-                        style={{
-                          marginBottom: "0.75rem",
-                          padding: "0.8rem 0.9rem",
-                          borderRadius: "0.9rem",
-                          background: "#020617",
-                          borderLeft: `4px solid ${borderColor}`,
-                        }}
-                      >
+                      return (
                         <div
+                          key={item.tile_id ?? idx}
                           style={{
+                            padding: "0.9rem 1rem",
+                            borderRadius: "0.9rem",
+                            background: "#020617",
+                            border: `1px solid ${borderColor}`,
+                            boxShadow: "0 12px 25px rgba(0,0,0,0.35)",
                             display: "flex",
-                            justifyContent: "space-between",
-                            gap: "0.75rem",
-                            marginBottom: "0.15rem",
+                            flexDirection: "column",
+                            gap: "0.4rem",
                           }}
                         >
-                          <div>
-                            <div
-                              style={{
-                                fontWeight: 600,
-                                fontSize: "0.95rem",
-                              }}
-                            >
-                              {item.region}
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                              gap: "0.75rem",
+                            }}
+                          >
+                            <div>
+                              <div
+                                style={{
+                                  fontWeight: 600,
+                                  fontSize: "0.95rem",
+                                }}
+                              >
+                                {item.region}
+                              </div>
+                              <div
+                                style={{
+                                  fontSize: "0.8rem",
+                                  color: "#9ca3af",
+                                }}
+                              >
+                                {item.county} &middot; Tile ID: {item.tile_id}
+                              </div>
                             </div>
                             <div
                               style={{
-                                fontSize: "0.8rem",
-                                color: "#9ca3af",
+                                fontSize: "0.75rem",
+                                padding: "0.15rem 0.6rem",
+                                borderRadius: "999px",
+                                border: `1px solid ${borderColor}`,
+                                alignSelf: "flex-start",
                               }}
                             >
-                              {item.county} &middot; Tile ID: {item.tile_id}
+                              {level} risk
                             </div>
                           </div>
+
+                          <div
+                            style={{
+                              display: "grid",
+                              gridTemplateColumns: "repeat(3, minmax(0,1fr))",
+                              gap: "0.6rem",
+                              fontSize: "0.78rem",
+                            }}
+                          >
+                            <div>
+                              <div style={{ color: "#9ca3af" }}>
+                                Wildfire risk
+                              </div>
+                              <div style={{ fontWeight: 600 }}>
+                                {item.wildfire_risk.toFixed(2)}
+                              </div>
+                            </div>
+                            <div>
+                              <div style={{ color: "#9ca3af" }}>Crop stress</div>
+                              <div style={{ fontWeight: 600 }}>
+                                {item.crop_stress.toFixed(2)}
+                              </div>
+                            </div>
+                            <div>
+                              <div style={{ color: "#9ca3af" }}>
+                                Overall risk
+                              </div>
+                              <div style={{ fontWeight: 600 }}>
+                                {item.risk_score.toFixed(2)}
+                              </div>
+                            </div>
+                          </div>
+
                           <div
                             style={{
                               fontSize: "0.75rem",
-                              padding: "0.15rem 0.6rem",
-                              borderRadius: "999px",
-                              border: `1px solid ${borderColor}`,
-                              alignSelf: "flex-start",
+                              color: "#9ca3af",
                             }}
                           >
-                            {level} risk
+                            {item.notes}
                           </div>
-                        </div>
 
-                        <div
-                          style={{
-                            display: "grid",
-                            gridTemplateColumns:
-                              "repeat(3, minmax(0,1fr))",
-                            gap: "0.6rem",
-                            fontSize: "0.78rem",
-                            marginTop: "0.25rem",
-                          }}
-                        >
-                          <div>
-                            <div style={{ color: "#9ca3af" }}>
-                              Wildfire risk
-                            </div>
-                            <div style={{ fontWeight: 600 }}>
-                              {item.wildfire_risk.toFixed(2)}
-                            </div>
-                          </div>
-                          <div>
-                            <div style={{ color: "#9ca3af" }}>
-                              Crop stress
-                            </div>
-                            <div style={{ fontWeight: 600 }}>
-                              {item.crop_stress.toFixed(2)}
-                            </div>
-                          </div>
-                          <div>
-                            <div style={{ color: "#9ca3af" }}>
-                              Overall risk
-                            </div>
-                            <div style={{ fontWeight: 600 }}>
-                              {item.risk_score.toFixed(2)}
-                            </div>
+                          <div
+                            style={{
+                              fontSize: "0.72rem",
+                              color: "#6b7280",
+                            }}
+                          >
+                            Coords: {item.lat.toFixed(2)}°N,{" "}
+                            {item.lon.toFixed(2)}°E
                           </div>
                         </div>
-
-                        <div
-                          style={{
-                            marginTop: "0.35rem",
-                            fontSize: "0.75rem",
-                            color: "#9ca3af",
-                          }}
-                        >
-                          {item.notes}
-                        </div>
-
-                        <div
-                          style={{
-                            marginTop: "0.25rem",
-                            fontSize: "0.72rem",
-                            color: "#6b7280",
-                          }}
-                        >
-                          Coords: {item.lat.toFixed(2)}°N,{" "}
-                          {item.lon.toFixed(2)}°E
-                        </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -436,7 +454,7 @@ export default function Home() {
                 }}
               >
                 No results yet. Run a prediction from the hero section or click
-                &ldquo;Run Risk Prediction&rdquo; to fetch demo data from the
+                &ldquo;Run Risk Prediction&rdquo; to fetch prediction scores from the trained model which is integreated with
                 FastAPI backend.
               </p>
             )}
@@ -453,6 +471,9 @@ export default function Home() {
               display: "flex",
               flexDirection: "column",
               gap: "0.75rem",
+              alignSelf: "start",
+              maxHeight: "fit-content",
+              
             }}
           >
             <h2 style={{ fontSize: "1rem", marginBottom: "0.1rem" }}>
@@ -470,15 +491,27 @@ export default function Home() {
               incorporate land cover, vegetation indices, climate anomalies,
               and historical fire fronts.
             </p>
+            {/* Map container with its own boundaries */}
+            <div
+              style={{
+                height: "340px",
+                width: "100%",
+                borderRadius: "0.9rem",
+                overflow: "hidden",
+                boxShadow: "0 12px 25px rgba(0,0,0,0.45)",
+              }}
+            >
+              <MapPanel tiles={results?.tiles} />
+            </div>
 
-            <MapPanel tiles={results?.tiles} />
+
 
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: "repeat(3, minmax(0,1fr))",
                 gap: "0.5rem",
-                marginTop: "0.5rem",
+                marginTop: "0.4rem",
                 fontSize: "0.75rem",
               }}
             >
@@ -552,7 +585,7 @@ export default function Home() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            zIndex: 50,
+            zIndex: 2000,
           }}
           onClick={() => setShowMethodology(false)}
         >
